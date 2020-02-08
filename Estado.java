@@ -11,6 +11,7 @@ class Estado {
     ArrayList<Transicion> getTransiciones(void){return this.transiciones;}
     
     void setAceptacion(bool toSet){this.aceptacion = toSet;}
+    void addTransicion(Transicion toAdd){this.transiciones.add(toAdd);}
     
     Estado(void){
         this.id = generalId;
