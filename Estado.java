@@ -1,13 +1,16 @@
-public class Estado {
-    private static int generalId;
-    private int id;
+class Estado {
+    static int generalId = 1;
+    int id;
+    bool aceptacion;
+    ArrayList<Transicion> transiciones;
     
     //=====
     
-    public int getId(void){return this.id;}
+    int getId(void){return this.id;}
     
-    public Estado(void){
+    Estado(void){
         this.id = generalId;
+        this.aceptacion = false;
         generalId++;
     }
 }
