@@ -7,6 +7,10 @@ class Estado {
     //=====
     
     int getId(void){return this.id;}
+    bool getAceptacion(void){return this.aceptacion;}
+    ArrayList<Transicion> getTransiciones(void){return this.transiciones;}
+    
+    void setAceptacion(bool toSet){this.aceptacion = toSet;}
     
     Estado(void){
         this.id = generalId;
