@@ -1,5 +1,18 @@
 class AFN {
-
+    Estado edoIni;
+    HashSet<Estado> edosAceptacion;
+    HashSet<char> alfabeto;
+    HashSet<Estado> edosAFN;
+    
+    AFN(void){
+        this.edoIni = NULL;
+        this.alfabeto = new HashSet<char>();
+        this.alfabeto.clear();
+        this.edosAceptacion = new HashSet<Estado>();
+        this.edosAceptacion.clear();
+        this.edosAFN = new HashSet<Estado>();
+        this.edosAFN.clear();
+    }
 }
 
 /*
