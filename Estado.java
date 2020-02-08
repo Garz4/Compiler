@@ -11,6 +11,7 @@ class Estado {
     Estado(void){
         this.id = generalId;
         this.aceptacion = false;
+        this.transiciones = new ArrayList<Transicion>();
         generalId++;
     }
 }
