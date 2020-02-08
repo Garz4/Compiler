@@ -6,13 +6,13 @@ class Estado {
     
     //=====
     
-    int getId(void){return this.id;}
-    bool getAceptacion(void){return this.aceptacion;}
+    int getId(){return this.id;}
+    bool getAceptacion(){return this.aceptacion;}
     
     void setAceptacion(bool toSet){this.aceptacion = toSet;}
     void addTransicion(Transicion toAdd){this.transiciones.add(toAdd);}
     
-    Estado(void){
+    Estado(){
         this.id = generalId;
         this.aceptacion = false;
         this.transiciones = new HashSet<Transicion>();
