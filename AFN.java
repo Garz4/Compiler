@@ -88,6 +88,27 @@ class AFN {
     }
     
     AFN concatenar(AFN f){ //Thompson
+        
+        for (Estado e : this.EdosAcept) {
+            for (Transicion t : f2.EdoIni.getTrans()) {
+                e.AgregarTrans(t.simboloMin, t.simboloMax, t.Edo);
+            }
+        }
+        f2.Estados.remove(f2.EdoIni);
+        for (Estado e : this.EdosAcept) {
+            e.setAceptacion(false);
+        }
+        this.EdosAcept.clear();
+        for (Estado e : f2.EdosAcept) {
+            this.EdosAcept.add(e);
+        }
+        for (char a : f2.getAlfabeto()) {
+            this.Alfabeto.add(a);
+        }
+        for (Estado e : f2.Estados) {
+            this.Estados.add(e);
+        }
+        f2 = null;
         return this;
     }
 }
