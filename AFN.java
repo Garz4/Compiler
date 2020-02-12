@@ -88,7 +88,7 @@ class AFN {
     }
     
     AFN concatenar(AFN f){ //Thompson
-        
+
         for (Estado e : this.EdosAcept) {
             for (Transicion t : f2.EdoIni.getTrans()) {
                 e.AgregarTrans(t.simboloMin, t.simboloMax, t.Edo);
@@ -109,6 +109,26 @@ class AFN {
             this.Estados.add(e);
         }
         f2 = null;
+        return this;
+    }
+     //Cerradura positiva. 
+     AFN CerrMas(AFN f)() {
+        Estado NuevoIni = new Estado();
+        Estado NuevoFin = new Estado();
+        NuevoIni.AgregarTrans('&', this.EdoIni);
+        for (Estado e : this.EdosAcept) {
+            e.AgregarTrans('&', NuevoFin);
+            e.AgregarTrans('&', this.EdoIni);
+            e.setAceptacion(false);
+        }
+        NuevoFin.setAceptacion(true);
+        NuevoFin.setToken(AToken);
+        AToken++;
+        this.EdosAcept.clear();
+        this.EdosAcept.add(NuevoFin);
+        this.Estados.add(NuevoIni);
+        this.Estados.add(NuevoFin);
+        this.EdoIni = NuevoIni;
         return this;
     }
 }
