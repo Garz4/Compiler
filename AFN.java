@@ -278,6 +278,7 @@ class AFN {
         totales.put(contadorId, current);
         estadosAFD.add(new Estado());
         estadosAFD.get(0).setId(contadorId);
+        response.setEdoIni(estadosAFD.get(0));
         contadorId++;
         
         while(!A.empty()){
