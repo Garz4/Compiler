@@ -1,0 +1,2 @@
+cd C:\Users\Garz4\Documents\NetBeansProjects\Hoc3\src\hoc3
+java -jar java-cup-11b.jar SintacHoc3.cup

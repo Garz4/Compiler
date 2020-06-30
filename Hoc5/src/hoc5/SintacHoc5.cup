@@ -1,0 +1,374 @@
+package hoc5;
+import java_cup.runtime.*;
+import java.io.FileReader;
+import java.lang.Math;
+
+class AnalizadorSintactico;
+
+parser code {:
+    Main interfaz;
+    Float variables[] = new Float[26];
+    MaquinaHoc5 maquinaHoc5;
+
+    public void report_error(String mensaje, Object info) {
+        StringBuilder m = new StringBuilder("Error");
+
+        if(info instanceof java_cup.runtime.Symbol) {
+            java_cup.runtime.Symbol s = (java_cup.runtime.Symbol) info;
+
+            if(s.left >= 0) {
+                m.append(" en la línea " + (s.left+1));
+                
+                if(s.right >= 0) {
+                    m.append(", columna " + (s.right+1));
+                }
+            }
+        }
+        
+        m.append(": " + mensaje);
+        System.err.println(m);
+    }
+
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+        System.exit(1);
+    }
+:}
+
+terminal OpSuma, OpResta, OpProd, OpDiv, OpAsig, OpExp;
+terminal ParIzq, ParDer, SEMIC;
+terminal PRINT, WHILE, IF, ELSE;
+terminal SymbolHoc NUM;
+terminal SymbolHoc VAR;
+terminal SymbolHoc CONST_PRED;
+terminal SymbolHoc BLTIN;
+terminal UMINUS;
+terminal OR, AND, GT, GE, LT, LE, EQ, NE, NOT;
+terminal LLAVE_IZQ, LLAVE_DER;
+
+non terminal list;
+non terminal Integer asgn, expr, stmt, stmtlist, if, while, end, cond;
+
+precedence right OpAsig;
+precedence left OR;
+precedence left AND;
+precedence left GT, GE, LT, LE, EQ, NE;
+precedence left OpSuma, OpResta;
+precedence left OpProd, OpDiv;
+precedence left OpExp;
+precedence left UMINUS;
+precedence left IF;
+precedence left ELSE;
+
+list    ::= /* nada */
+        | list stmt                         {: 
+                                                /*InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.PRINT;
+
+                                                InstrucPrograma inst2 = new InstrucPrograma();
+                                                inst2.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst2.Instruc = EnumInstrMaq.STOP;
+
+                                                maquinaHoc5.code(inst1);*/
+                                             :}
+        ;
+
+asgn    ::= VAR:v OpAsig expr:ind1          {: 
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.VARPUSH;
+
+                                                InstrucPrograma inst2 = new InstrucPrograma();
+                                                inst2.TipInstr = EnumTipoInstr.SYMBOL;
+                                                inst2.symbolHoc = v;
+                                                
+                                                InstrucPrograma inst3 = new InstrucPrograma();
+                                                inst3.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst3.Instruc = EnumInstrMaq.ASSIGN;
+
+                                                maquinaHoc5.code3(inst1, inst2, inst3);
+                                                RESULT = ind1;
+                                             :}
+        ;
+stmt    ::= asgn:ind1 SEMIC                 {:
+                                                RESULT = ind1;
+                                             :}
+        | PRINT expr:ind1 SEMIC             {:
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.PRINT;
+                                                
+                                                maquinaHoc5.code(inst1);
+                                                RESULT = ind1;
+                                             :}
+        | while:ind1 cond:ind2 stmt:ind3 end:ind4 {:
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.JUMP;
+                                                inst1.jump = ind3;
+
+                                                maquinaHoc5.Prog[ind1+1] = inst1;
+
+                                                InstrucPrograma inst2 = new InstrucPrograma();
+                                                inst2.TipInstr = EnumTipoInstr.JUMP;
+                                                inst2.jump = ind4;
+
+                                                maquinaHoc5.Prog[ind1+2] = inst2;
+
+                                                RESULT = ind1;
+                                             :}
+        | if:ind1 cond:ind2 stmt:ind3 end:ind4 {:
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.JUMP;
+                                                inst1.jump = ind3;
+
+                                                maquinaHoc5.Prog[ind1+1] = inst1;
+
+                                                InstrucPrograma inst2 = new InstrucPrograma();
+                                                inst2.TipInstr = EnumTipoInstr.JUMP;
+                                                inst2.jump = ind4;
+
+                                                maquinaHoc5.Prog[ind1+3] = inst2;
+
+                                                RESULT = ind1;
+                                             :} %prec IF
+        | if:ind1 cond:ind2 stmt:ind3 end:ind4 ELSE stmt:ind6 end:ind7 {:
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.JUMP;
+                                                inst1.jump = ind3;
+
+                                                maquinaHoc5.Prog[ind1+1] = inst1;
+
+                                                InstrucPrograma inst2 = new InstrucPrograma();
+                                                inst2.TipInstr = EnumTipoInstr.JUMP;
+                                                inst2.jump = ind6;
+
+                                                maquinaHoc5.Prog[ind1+2] = inst2;
+
+                                                InstrucPrograma inst3 = new InstrucPrograma();
+                                                inst3.TipInstr = EnumTipoInstr.JUMP;
+                                                inst3.jump = ind7;
+
+                                                maquinaHoc5.Prog[ind1+3] = inst3;
+
+                                                RESULT = ind1;
+                                             :} %prec ELSE
+        | LLAVE_IZQ stmtlist:ind LLAVE_DER  {: RESULT = ind; :}
+        ;
+cond    ::= ParIzq expr:ind1 ParDer         {:
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.STOP;
+                                                maquinaHoc5.code(inst1);
+
+                                                RESULT = ind1;
+                                             :}
+        ;
+while   ::= WHILE                           {:
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.WHILECODE;
+
+                                                InstrucPrograma inst2 = new InstrucPrograma();
+                                                inst2.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst2.Instruc = EnumInstrMaq.STOP;
+                                                
+                                                InstrucPrograma inst3 = new InstrucPrograma();
+                                                inst3.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst3.Instruc = EnumInstrMaq.STOP;
+
+                                                RESULT = maquinaHoc5.code3(inst1, inst2, inst3);
+                                             :}
+        ;
+if      ::= IF                              {:
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.IFCODE;
+
+                                                RESULT = maquinaHoc5.code(inst1);
+
+                                                InstrucPrograma inst2 = new InstrucPrograma();
+                                                inst2.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst2.Instruc = EnumInstrMaq.STOP;
+                                                
+                                                InstrucPrograma inst3 = new InstrucPrograma();
+                                                inst3.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst3.Instruc = EnumInstrMaq.STOP;
+
+                                                InstrucPrograma inst4 = new InstrucPrograma();
+                                                inst4.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst4.Instruc = EnumInstrMaq.STOP;
+
+                                                maquinaHoc5.code3(inst2, inst3, inst4);
+                                             :}
+        ;
+end     ::=                                 {:
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.STOP;
+
+                                                maquinaHoc5.code(inst1);
+
+                                                RESULT = maquinaHoc5.progp;
+                                             :}
+        ;
+stmtlist ::= stmt:ind1                      {: RESULT = ind1; :}
+        | stmtlist:ind1 stmt                {: RESULT = ind1; :}
+        ;
+expr    ::= NUM:n                           {: 
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.CONSTPUSH;
+
+                                                InstrucPrograma inst2 = new InstrucPrograma();
+                                                inst2.TipInstr = EnumTipoInstr.SYMBOL;
+                                                inst2.symbolHoc = n;
+
+                                                RESULT = maquinaHoc5.code2(inst1, inst2);
+                                             :}
+        | VAR:v                             {: 
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.VARPUSH;
+
+                                                InstrucPrograma inst2 = new InstrucPrograma();
+                                                inst2.TipInstr = EnumTipoInstr.SYMBOL;
+                                                inst2.symbolHoc = v;
+
+                                                InstrucPrograma inst3 = new InstrucPrograma();
+                                                inst3.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst3.Instruc = EnumInstrMaq.EVAL;
+
+                                                RESULT = maquinaHoc5.code3(inst1, inst2, inst3);
+                                             :}
+        | CONST_PRED:n                      {: 
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.CONSTPUSH;
+
+                                                InstrucPrograma inst2 = new InstrucPrograma();
+                                                inst2.TipInstr = EnumTipoInstr.SYMBOL;
+                                                inst2.symbolHoc = n;
+
+                                                RESULT = maquinaHoc5.code2(inst1, inst2);
+                                             :}
+        | asgn:ind                          {: RESULT = ind; :}
+        | expr:ind1 OpSuma expr             {: 
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.ADD;
+                                                maquinaHoc5.code(inst1);
+                                                RESULT = ind1;
+                                             :}
+        | expr:e1 OpResta expr              {: 
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.SUB;
+                                                maquinaHoc5.code(inst1);
+                                                RESULT = e1;
+                                             :}
+        | expr:e1 OpProd expr               {: 
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.MUL;
+                                                maquinaHoc5.code(inst1);
+                                                RESULT = e1;
+                                             :}
+        | expr:e1 OpDiv expr                {: 
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.DIV;
+                                                maquinaHoc5.code(inst1);
+                                                RESULT = e1;
+                                             :}
+        | ParIzq expr:e ParDer              {: RESULT = e; :}
+        | BLTIN:v ParIzq expr:ind1 ParDer   {: 
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.BLTIN;
+
+                                                InstrucPrograma inst2 = new InstrucPrograma();
+                                                inst2.TipInstr = EnumTipoInstr.BLTIN;
+                                                inst2.Func_BLTIN = v.FuncPredef;
+
+                                                maquinaHoc5.code2(inst1, inst2);
+                                                RESULT = ind1;
+                                             :}
+        | OpResta expr:ind1                 {: 
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.NEGATE;
+                                                maquinaHoc5.code(inst1);
+                                                RESULT = ind1;
+                                             :} %prec UMINUS
+        | expr:ind1 OpExp expr              {:
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.POWER;
+                                                maquinaHoc5.code(inst1);
+                                                RESULT = ind1;
+                                             :} %prec OpExp
+        | expr:ind1 GT expr                 {: 
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.GT;
+                                                maquinaHoc5.code(inst1);
+                                                RESULT = ind1;
+                                             :}
+        | expr:ind1 GE expr                 {: 
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.GE;
+                                                maquinaHoc5.code(inst1);
+                                                RESULT = ind1;
+                                             :}
+        | expr:ind1 LT expr                 {:
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.LT;
+                                                maquinaHoc5.code(inst1);
+                                                RESULT = ind1;
+                                             :}
+        | expr:ind1 LE expr                 {:
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.LE;
+                                                maquinaHoc5.code(inst1);
+                                                RESULT = ind1;
+                                             :}
+        | expr:ind1 EQ expr                 {:
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.EQ;
+                                                maquinaHoc5.code(inst1);
+                                                RESULT = ind1;
+                                             :}
+        | expr:ind1 NE expr                 {:
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.NE;
+                                                maquinaHoc5.code(inst1);
+                                                RESULT = ind1;
+                                             :}
+        | expr:ind1 AND expr                {:
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.AND;
+                                                maquinaHoc5.code(inst1);
+                                                RESULT = ind1;
+                                             :}
+        | expr:ind1 OR expr                 {:
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.OR;
+                                                maquinaHoc5.code(inst1);
+                                                RESULT = ind1;
+                                             :}
+        | NOT expr:ind1                     {:
+                                                InstrucPrograma inst1 = new InstrucPrograma();
+                                                inst1.TipInstr = EnumTipoInstr.INSTRUC;
+                                                inst1.Instruc = EnumInstrMaq.NOT;
+                                                maquinaHoc5.code(inst1);
+                                                RESULT = ind1;
+                                             :}
+        ;
