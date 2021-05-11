@@ -5,7 +5,7 @@ All the projects from the course “Compilers” took at the Superior School of 
 
 Table of Contents (ToC):
 =========================
-* [Hoc3, Hoc4 and Hoc5](#hoc3-hoc4-hoc5)
+* [Hoc3, Hoc4 and Hoc5](#hoc3-hoc4-and-hoc5)
 * [Automaton](#automaton)
 * [Lexical Analyzer Generator](#lexical-analyzer-generator)
 
