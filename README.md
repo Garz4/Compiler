@@ -14,18 +14,8 @@ Table of Contents (ToC):
 Compilers based on lexical and syntactic analysis that read a code given by the user, and recognize and execute loops, if statements, if-else statements, assignments and more.
 
 ![Hoc3](doc/imgs/hoc3.png)
-
-Hoc3
-
-
 ![Hoc4](doc/imgs/hoc4.png)
-
-Hoc4
-
-
 ![Hoc5](doc/imgs/hoc5.png)
-
-Hoc5
 
 ---
 
