@@ -22,8 +22,6 @@ Compilers based on lexical and syntactic analysis that read a code given by the 
 ## Automaton
 Implementation of the Lexical Analyzer Generator.
 
-Automaton
-
 ![Hoc4](doc/imgs/automaton.png)
 
 ---
