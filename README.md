@@ -13,14 +13,19 @@ Table of Contents (ToC):
 ## Hoc3, Hoc4 and Hoc5
 Compilers based on lexical and syntactic analysis that read a code given by the user, and recognize and execute loops, if statements, if-else statements, assignments and more.
 
-Hoc3
 ![Hoc3](doc/imgs/hoc3.png)
 
-Hoc4
+Hoc3
+
+
 ![Hoc4](doc/imgs/hoc4.png)
 
-Hoc5
+Hoc4
+
+
 ![Hoc5](doc/imgs/hoc5.png)
+
+Hoc5
 
 ---
 
@@ -28,6 +33,7 @@ Hoc5
 Implementation of the Lexical Analyzer Generator.
 
 Automaton
+
 ![Hoc4](doc/imgs/automaton.png)
 
 ---
