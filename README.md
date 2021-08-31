@@ -1,4 +1,4 @@
-compiler
+compilers
 ---------------
 All the projects from the course “Compilers” took at the Superior School of Computer Sciences. Built with Java, JFlex and Java CUP.
 

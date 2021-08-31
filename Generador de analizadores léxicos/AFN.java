@@ -1,3 +1,18 @@
+/*
+ * MIT License
+ * 
+ * Copyright (c) 2021 Uriel Rivas
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * https://github.com/Garz4/compilers/blob/master/LICENSE
+ */
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map.Entry;
@@ -339,7 +354,7 @@ class AFN {
                     response.addEdoAceptacion(e);
                 }
             }
-                
+
         }
         System.out.print("AFD:\n");
         HashSet<Transicion> currTran;
@@ -356,10 +371,10 @@ class AFN {
                 System.out.print(e.getId()+" ===================  "+e.getToken()+"\n");
             }
         }
-        
+
         response.setAlfabeto(this.alfabeto);
-        
+
         return response;
     }
-    
+
 }
