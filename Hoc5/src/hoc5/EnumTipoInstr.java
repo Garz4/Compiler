@@ -15,6 +15,6 @@
 
 package hoc5;
 
-public enum EnumTipoInstr {
+public final enum EnumTipoInstr {
     INSTRUC, SYMBOL, BLTIN, JUMP;
 }

@@ -15,10 +15,10 @@
 
 package hoc5;
 
-public class InstrucPrograma {
-    public EnumTipoInstr TipInstr;
-    public EnumInstrMaq Instruc;
-    public EnumBLTIN Func_BLTIN;
-    public SymbolHoc symbolHoc;
-    public int jump;
+public final class InstrucPrograma {
+    public final EnumTipoInstr TipInstr;
+    public final EnumInstrMaq Instruc;
+    public final EnumBLTIN Func_BLTIN;
+    public final SymbolHoc symbolHoc;
+    public final int jump;
 }
