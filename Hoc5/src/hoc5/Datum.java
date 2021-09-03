@@ -16,6 +16,6 @@
 package hoc5;
 
 public class Datum {
-    public final float val;
-    public final SymbolHoc symb;
+    public float val;
+    public SymbolHoc symb;
 }

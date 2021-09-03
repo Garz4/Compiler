@@ -15,6 +15,6 @@
 
 package hoc5;
 
-public final class EnumTipDatum {
+public static final class EnumTipDatum {
     /* Uhm... */
 }

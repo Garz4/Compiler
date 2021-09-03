@@ -15,6 +15,6 @@
 
 package hoc5;
 
-public final enum EnumTipoSymbol {
+public static final enum EnumTipoSymbol {
     CONST_PREDEF, UNDEF, VAR, BLTIN, CONST_NUM;
 }

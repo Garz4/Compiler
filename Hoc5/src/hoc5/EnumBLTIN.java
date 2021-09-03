@@ -15,6 +15,6 @@
 
 package hoc5;
 
-public final enum EnumBLTIN {
+public static final enum EnumBLTIN {
     SIN, COS, ATAN, LOG, LO10, EXP, SQRT, INTEGER, ABS;
 }

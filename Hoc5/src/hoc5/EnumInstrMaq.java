@@ -15,7 +15,7 @@
 
 package hoc5;
 
-public final enum EnumInstrMaq {
+public static final enum EnumInstrMaq {
     EVAL, ADD, SUB, MUL, DIV, NEGATE, POWER, ASSIGN, BLTIN, VARPUSH, CONSTPUSH, PRINT, STOP,
     GT, GE, LT, LE, EQ, NE, AND, OR, NOT, WHILECODE, IFCODE;
 }
