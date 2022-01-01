@@ -15,6 +15,4 @@
 
 package hoc4;
 
-public class EnumTipDatum {
-    
-}
+public class EnumTipDatum {}

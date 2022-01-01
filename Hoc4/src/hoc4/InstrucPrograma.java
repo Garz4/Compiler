@@ -16,6 +16,7 @@
 package hoc4;
 
 public class InstrucPrograma {
+    // TODO(Garz4): Make these private.
     public EnumTipoInstr TipInstr;
     public EnumInstrMaq Instruc;
     public EnumBLTIN Func_BLTIN;

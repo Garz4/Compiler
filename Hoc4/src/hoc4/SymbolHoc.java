@@ -16,37 +16,44 @@
 package hoc4;
 
 public class SymbolHoc {
-    public String name;
-    public EnumTipoSymbol TipoSymbol; /* VAR, UNDEF, BLTIN, CONST_NUM, CONST_PREDEF */
-    public float val;
-    public EnumBLTIN FuncPredef; /* "double (*ptr)()" */
-    
     public SymbolHoc() {
-        this.name = "";
-        this.val = 0;
+        _name = "";
+        _value = 0;
     }
-    
-    public SymbolHoc(String name, EnumTipoSymbol TipoSymbol, float val) {
-        this.name = name;
-        this.TipoSymbol = TipoSymbol;
-        this.val = val;
+
+    public SymbolHoc(String $name, EnumTipoSymbol $tipoSymbol, float $value) {
+        _name = $name;
+        _tipoSymbol = $tipoSymbol;
+        _value = $value;
     }
-    
-    public SymbolHoc(String name, EnumTipoSymbol TipoSymbol, EnumBLTIN FuncPredef) {
-        this.name = name;
-        this.TipoSymbol = TipoSymbol;
-        this.FuncPredef = FuncPredef;
+
+    public SymbolHoc(
+            String $name, EnumTipoSymbol $tipoSymbol, EnumBLTIN $funcPredef) {
+        _name = $name;
+        _tipoSymbol = $tipoSymbol;
+        _funcPredef = $funcPredef;
     }
-    
-    public void SetSymbol(String name, EnumTipoSymbol TipoSymbol, float val) {
-        this.name = name;
-        this.TipoSymbol = TipoSymbol;
-        this.val = val;
+
+    public float getValue() { return _value; }
+    public String getName() { return _name; }
+    public EnumBLTIN getFuncPredef() { return _funcPredef; }
+    public EnumTipoSymbol getTipoSymbol() { return _tipoSymbol; }
+
+    public void setValue(float $value) { _value = $value; }
+    public void setName(String $name) { _name = $name; }
+    public void setFuncPredef(EnumBLTIN $funcPredef) {
+        _funcPredef = $funcPredef;
     }
-    
-    public void SetSymbol(String name, EnumTipoSymbol TipoSymbol, EnumBLTIN FuncPredef) {
-        this.name = name;
-        this.TipoSymbol = TipoSymbol;
-        this.FuncPredef = FuncPredef;
+    public void setTipoSymbol(EnumTipoSymbol $tipoSymbol) {
+        _tipoSymbol = $tipoSymbol;
     }
+
+    private float _value;
+    private String _name;
+
+    // "double (*ptr)()"
+    private EnumBLTIN _funcPredef;
+
+    // VAR, UNDEF, BLTIN, CONST_NUM, CONST_PREDEF
+    private EnumTipoSymbol _tipoSymbol;
 }

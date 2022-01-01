@@ -14,90 +14,85 @@
  */
 
 package hoc4;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+
+import java.util.Hashtable;
 
 public class TablaSimbolos {
-    List<SymbolHoc> ListaSimbolos;
-    
     public TablaSimbolos() {
-        this.ListaSimbolos = new LinkedList<>();
-        this.ListaSimbolos.clear();
+        _hashtableSimbolos = new Hashtable<>();
     }
-    
-    public SymbolHoc lookup(String name) {
-        SymbolHoc s;
-        Iterator it = ListaSimbolos.iterator();
-        
-        while(it.hasNext()) {
-            s = (SymbolHoc)it.next();
-            
-            if(s.name.equals(name)) {
-                return s;
-            }
+
+    // Constant time.
+    public SymbolHoc lookup(String $name) {
+        if (!_hashtableSimbolos.contains($name)) {
+            return null;
         }
-        
-        return null;
+
+        return _hashtableSimbolos.get($name);
     }
-    
-    public SymbolHoc install(String name, EnumTipoSymbol type, float val) {
-        SymbolHoc s;
-        
-        s = new SymbolHoc();
-        s.SetSymbol(name, type, val); 
-        /* verificar si no es que ya existe en la lista */
-        ListaSimbolos.add(s);
-        
-        return s;
+
+    public SymbolHoc install(String $name, EnumTipoSymbol $type, float $value) {
+        SymbolHoc symbol;
+
+        symbol = new SymbolHoc($name, $type, $value);
+        /* verificar si no es que ya existe en la lista <- Is this a TODO? */
+        _hashtableSimbolos.put($name, symbol);
+
+        return symbol;
     }
-    
-    public SymbolHoc install(String name, EnumTipoSymbol type, EnumBLTIN funcPredef) {
-        SymbolHoc s;
-        
-        s = new SymbolHoc();
-        s.SetSymbol(name, type, funcPredef);
-        ListaSimbolos.add(s);
-        
-        return s;
+
+    public SymbolHoc install(
+            String $name, EnumTipoSymbol $type, EnumBLTIN $funcPredef) {
+        SymbolHoc symbol;
+
+        symbol = new SymbolHoc($name, $type, $funcPredef);
+        _hashtableSimbolos.put($name, symbol);
+
+        return symbol;
     }
-    
+
     public void init() {
-        ListaSimbolos.clear();
-        InitConstPredef();
-        InitFuncPredef();
+        _hashtableSimbolos.clear();
+        _initConstPredef();
+        _initFuncPredef();
     }
-    
-    private void InitConstPredef() {
-        /*SymbolHoc s;
-        float val;
-        
-        s = new SymbolHoc();
-        val = (float)3.141592653589;
-        s.SetSymbol("PI", EnumTipoSymbol.CONST_PREDEF, val);
-        ListaSimbolos.add(s);*/
-        ListaSimbolos.add(new SymbolHoc("PI", EnumTipoSymbol.CONST_PREDEF, (float)3.141592653589));
-        ListaSimbolos.add(new SymbolHoc("E", EnumTipoSymbol.CONST_PREDEF, (float)2.718281828459));
-        ListaSimbolos.add(new SymbolHoc("GAMMA", EnumTipoSymbol.CONST_PREDEF, (float)0.577215664901));
-        ListaSimbolos.add(new SymbolHoc("DEG", EnumTipoSymbol.CONST_PREDEF, (float)57.2957795130));
-        ListaSimbolos.add(new SymbolHoc("PHI", EnumTipoSymbol.CONST_PREDEF, (float)1.6180334989));
+
+    public Hashtable<String, SymbolHoc> getHashtableSimbolos() {
+        return _hashtableSimbolos;
     }
-    
-    private void InitFuncPredef() {
-        /*SymbolHoc s;
-        
-        s = new SymbolHoc();
-        
-        s.SetSymbol("sin", EnumTipoSymbol.BLTIN, EnumBLTIN.SIN);
-        ListaSimbolos.add(s);*/
-        ListaSimbolos.add(new SymbolHoc("sin", EnumTipoSymbol.BLTIN, EnumBLTIN.SIN));
-        ListaSimbolos.add(new SymbolHoc("cos", EnumTipoSymbol.BLTIN, EnumBLTIN.COS));
-        ListaSimbolos.add(new SymbolHoc("atan", EnumTipoSymbol.BLTIN, EnumBLTIN.ATAN));
-        ListaSimbolos.add(new SymbolHoc("log", EnumTipoSymbol.BLTIN, EnumBLTIN.LOG));
-        ListaSimbolos.add(new SymbolHoc("lo10", EnumTipoSymbol.BLTIN, EnumBLTIN.LO10));
-        ListaSimbolos.add(new SymbolHoc("exp", EnumTipoSymbol.BLTIN, EnumBLTIN.EXP));
-        ListaSimbolos.add(new SymbolHoc("sqrt", EnumTipoSymbol.BLTIN, EnumBLTIN.SQRT));
-        ListaSimbolos.add(new SymbolHoc("int", EnumTipoSymbol.BLTIN, EnumBLTIN.INTEGER));
-        ListaSimbolos.add(new SymbolHoc("abs", EnumTipoSymbol.BLTIN, EnumBLTIN.ABS));
+
+    private void _initConstPredef() {
+        _putIntoHashtableSimbolos("PI", (float) 3.141592653589);
+        _putIntoHashtableSimbolos("E", (float) 2.718281828459);
+        _putIntoHashtableSimbolos("GAMMA", (float) 0.577215664901);
+        _putIntoHashtableSimbolos("DEG", (float) 57.2957795130);
+        _putIntoHashtableSimbolos("PHI", (float) 1.6180334989);
     }
+
+    private void _initFuncPredef() {
+        _putIntoHashtableSimbolos("sin", EnumBLTIN.SIN);
+        _putIntoHashtableSimbolos("cos", EnumBLTIN.COS);
+        _putIntoHashtableSimbolos("atan", EnumBLTIN.ATAN);
+        _putIntoHashtableSimbolos("log", EnumBLTIN.LOG);
+        _putIntoHashtableSimbolos("lo10", EnumBLTIN.LO10);
+        _putIntoHashtableSimbolos("exp", EnumBLTIN.EXP);
+        _putIntoHashtableSimbolos("sqrt", EnumBLTIN.SQRT);
+        _putIntoHashtableSimbolos("int", EnumBLTIN.INTEGER);
+        _putIntoHashtableSimbolos("abs", EnumBLTIN.ABS);
+    }
+
+    private void _putIntoHashtableSimbolos(
+            String $name,  EnumBLTIN $funcPredef) {
+        _hashtableSimbolos.put(
+                $name,
+                new SymbolHoc($name, EnumTipoSymbol.BLTIN, $funcPredef));
+    }
+
+    private void _putIntoHashtableSimbolos(String $name,  float $value) {
+        _hashtableSimbolos.put(
+                $name,
+                new SymbolHoc($name, EnumTipoSymbol.CONST_PREDEF, $value));
+    }
+
+    private Hashtable<String, SymbolHoc> _hashtableSimbolos;
 }

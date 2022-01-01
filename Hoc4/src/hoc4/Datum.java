@@ -16,6 +16,7 @@
 package hoc4;
 
 public class Datum {
-    float val;
-    SymbolHoc symb;
+    // TODO(Garz4): Make these private.
+    public float val;
+    public SymbolHoc symb;
 }

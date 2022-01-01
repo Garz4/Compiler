@@ -24,7 +24,7 @@ import javax.swing.table.DefaultTableModel;
 
 public class Main extends javax.swing.JFrame {
     AnalizadorSintactico Sintac;
-    
+
     public Main() {
         initComponents();
     }
@@ -222,32 +222,31 @@ public class Main extends javax.swing.JFrame {
         String CadAux = new String();
         File ArchEntrada = new File("ArchEntrada.txt");
         PrintWriter escribir;
-        
+
         TXT_Lexic.setText("");
         TXT_Sintactic.setText("");
-        
+
         try {
             escribir = new PrintWriter(ArchEntrada);
             escribir.print(TXT_ToAnalyze.getText());
             escribir.close();
-        } catch(FileNotFoundException ex) {
+        } catch (FileNotFoundException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         try {
             Reader lector;
             lector = new BufferedReader(new FileReader("ArchEntrada.txt"));
-            
+
             AnalizadorLexico Lexic = new AnalizadorLexico(lector);
             do {
                 simb = Lexic.next_token();
                 CadAux = Integer.toString(simb.sym);
                 Lexema = Lexic.yytext();
-                if(simb.sym == AnalizadorSintacticoSym.EOF) {
+                if (simb.sym == AnalizadorSintacticoSym.EOF) {
                     CadAux = "Token: " + CadAux + "\tIdentToken: FIN \n";
-                }
-                else {
-                    switch(simb.sym) {
+                } else {
+                    switch (simb.sym) {
                         case AnalizadorSintacticoSym.Enter:
                             CadAux = "Token: " + CadAux + "\tIdentToken: Enter\t Lexema: " + Lexema + "\n";
                             break;
@@ -286,9 +285,10 @@ public class Main extends javax.swing.JFrame {
                             break;
                     }
                 }
+
                 TXT_Lexic.append(CadAux);
-            } while(simb.sym != AnalizadorSintacticoSym.EOF);
-        } catch(IOException ex) {
+            } while (simb.sym != AnalizadorSintacticoSym.EOF);
+        } catch (IOException ex) {
             TXT_Lexic.append("IOException\n");
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -304,58 +304,56 @@ public class Main extends javax.swing.JFrame {
         DefaultTableModel modeloTabla = (DefaultTableModel) jTableCodigo.getModel();
         InstrucPrograma instruc;
         AnalizadorLexico Lexic = null;
-        
+
         try {
             Lexic = new AnalizadorLexico(new FileReader("ArchEntrada.txt"));
-        }
-        catch(FileNotFoundException ex) {
+        } catch (FileNotFoundException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         modeloTabla.setRowCount(0);
-        
+
         try {
             Sintac = new AnalizadorSintactico(Lexic);
-            
+
             Sintac.interfaz = this;
             Sintac.maquinaHoc4 = new MaquinaHoc4();
             Lexic.maqHoc = Sintac.maquinaHoc4;
-            
+
             SymbolHoc s;
-            Iterator it = Lexic.maqHoc.TabSimb.ListaSimbolos.iterator();
-            
-            while(it.hasNext()) {
+            Iterator it = Lexic.maqHoc.TabSimb.getHashtableSimbolos().iterator();
+
+            while (it.hasNext()) {
                 s = (SymbolHoc) it.next();
                 cadAux = "==============================\n"
-                        + "Symbol: " + s.name + "\n"+
+                        + "Symbol: " + s.getName() + "\n"+
                         "==============================\n";
                 TXT_Sintactic.append(cadAux);
             }
-            
+
             try {
                 Object result = Sintac.parse().value;
                 InstrucPrograma inst2 = new InstrucPrograma();
                 inst2.TipInstr = EnumTipoInstr.INSTRUC;
                 inst2.Instruc = EnumInstrMaq.STOP;
                 Sintac.maquinaHoc4.code(inst2);
-            }
-            catch(Exception ex) {
+            } catch (Exception ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
+
             TXT_Sintactic.append("FIN DEL ANÁLISIS SINTÁCTICO.\n");
-            
-            for(int i = 0; i < Sintac.maquinaHoc4.progp; ++i) {
+
+            for (int i = 0; i < Sintac.maquinaHoc4.progp; ++i) {
                 instruc = Sintac.maquinaHoc4.Prog[i];
                 cadAux = "====== ERROR ======";
                 CadInst = "";
                 Name = "";
                 Valor = "";
                 ptrFunc = "";
-                
-                switch(instruc.TipInstr) {
+
+                switch (instruc.TipInstr) {
                     case INSTRUC:
-                        switch(instruc.Instruc) {
+                        switch (instruc.Instruc) {
                             case ADD:
                                 cadAux = "instruc ADD";
                                 CadInst = "ADD";
@@ -409,13 +407,13 @@ public class Main extends javax.swing.JFrame {
                                 CadInst = "VARPUSH";
                                 break;
                         }
-                        
+
                         cadAux += "\n";
                         TXT_Sintactic.append(cadAux);
                         break;
                     case BLTIN:
                         CadInst = "FuncPredef";
-                        switch(instruc.Func_BLTIN) {
+                        switch (instruc.Func_BLTIN) {
                             case ABS:
                                 cadAux = "instruc ABS";
                                 Name = "abs";
@@ -462,42 +460,42 @@ public class Main extends javax.swing.JFrame {
                                 ptrFunc = "SQRT";
                                 break;
                         }
-                        
+
                         cadAux += "\n";
                         TXT_Sintactic.append(cadAux);
                         break;
                     case SYMBOL:
-                        cadAux = "Symbol name: " + instruc.symbolHoc.name + 
-                                ", val = " + Float.toString(instruc.symbolHoc.val) + "\n";
+                        cadAux = "Symbol name: " + instruc.symbolHoc.getName() + 
+                                ", val = " + Float.toString(instruc.symbolHoc.getValue()) + "\n";
                         TXT_Sintactic.append(cadAux);
-                        
-                        switch(instruc.symbolHoc.TipoSymbol) {
+
+                        switch (instruc.symbolHoc.getTipoSymbol()) {
                             case VAR:
                                 CadInst = "VAR";
-                                Name = instruc.symbolHoc.name;
-                                Valor = Float.toString(instruc.symbolHoc.val);
+                                Name = instruc.symbolHoc.getName();
+                                Valor = Float.toString(instruc.symbolHoc.getValue());
                                 ptrFunc = "";
                                 break;
                             case UNDEF:
                                 CadInst = "UNDEF";
-                                Name = instruc.symbolHoc.name;
+                                Name = instruc.symbolHoc.getName();
                                 Valor = "---";
                                 ptrFunc = "";
                                 break;
                             case CONST_NUM:
                                 CadInst = "CONST_NUM";
-                                Name = instruc.symbolHoc.name;
-                                Valor = Float.toString(instruc.symbolHoc.val);
+                                Name = instruc.symbolHoc.getName();
+                                Valor = Float.toString(instruc.symbolHoc.getValue());
                                 ptrFunc = "";
                                 break;
                             case CONST_PREDEF:
                                 CadInst = "CONST_PREDEF";
-                                Name = instruc.symbolHoc.name;
-                                Valor = Float.toString(instruc.symbolHoc.val);
+                                Name = instruc.symbolHoc.getName();
+                                Valor = Float.toString(instruc.symbolHoc.getValue());
                                 ptrFunc = "";
                                 break;
                         }
-                        
+
                         break;
                 }
                 os[0] = (Object)CadInst;
@@ -506,12 +504,11 @@ public class Main extends javax.swing.JFrame {
                 os[3] = (Object)ptrFunc;
                 modeloTabla.addRow(os);
             }
-        }
-        catch(Exception ex) {
+        } catch (Exception ex) {
             TXT_Sintactic.append("Análisis sintáctico finalizado sin éxito, errores encontrados.\n");
             ex.printStackTrace();
         }
-        
+
         //TXT_Sintactic.append("FIN DEL ANÁLISIS SINTÁCTICO.\n");
     }//GEN-LAST:event_BTN_SintacticActionPerformed
 
@@ -566,7 +563,7 @@ public class Main extends javax.swing.JFrame {
             }
         });
     }
-    
+
     public void PonerTextoSintact(String s) {
         TXT_Sintactic.append(s);
     }
