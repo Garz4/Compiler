@@ -14,21 +14,22 @@
  */
  
  public class Transicion {
-    char simbolo;
-    Estado estado;
-    
-    public Transicion(){
-        this.simbolo = 0;
-        this.estado = new Estado();
+    public Transicion() {
+        // TODO(Garz4): Avoid magic numbers like the following.
+        _simbolo = 0;
+        _estado = new Estado();
     }
-    
-    public Transicion(char sim, Estado E){
-        this.simbolo = sim;
-        this.estado = E;
+
+    public Transicion(char $simbolo, Estado $estado){
+        _simbolo = $simbolo;
+        _estado = $estado;
     }
-    
-    public void setEstado(Estado toSet){ this.estado = toSet; }
-    public void setSimbolo(char toSet){ this.simbolo = toSet; }
-    public char getSimbolo(){ return this.simbolo; }
-    public Estado getEstado(){ return this.estado; }
+
+    public void setEstado(Estado $estado) { _estado = $estado; }
+    public void setSimbolo(char $simbolo) { _simbolo = $simbolo; }
+    public char getSimbolo() { return _simbolo; }
+    public Estado getEstado() { return _estado; }
+
+    private char _simbolo;
+    private Estado _estado;
 }

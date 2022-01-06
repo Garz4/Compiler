@@ -16,24 +16,30 @@
 import java.util.HashSet;
 
 public class AFD {
-    Estado edoIni;
-    HashSet<Estado> edosAceptacion;
-    HashSet<Character> alfabeto;
-    HashSet<Estado> edosAFN;
-    
-    //=========================
-    
-    AFD(){
-        edosAceptacion = new HashSet<>();
-        alfabeto = new HashSet<>();
-        edosAFN = new HashSet<>();
+    public AFD() {
+        _estadosAceptacion = new HashSet<>();
+        _alfabeto = new HashSet<>();
+        _estadosAFN = new HashSet<>();
     }
 
-    void setEdoIni(Estado toSet){ this.edoIni = toSet; edosAFN.add(toSet); }
-    void addEstado(Estado toAdd){ edosAFN.add(toAdd); }
-    void addEdoAceptacion(Estado toSet){ edosAceptacion.add(toSet); }
-    void setAlfabeto(HashSet<Character> toSet){ this.alfabeto = toSet; }
+    public void addEstado(Estado $estado) { _estadosAFN.add($estado); }
+    public void addEdoAceptacion(Estado $estado) {
+        _estadosAceptacion.add($estado);
+    }
 
-    Estado getEdoIni(){ return this.edoIni; }
-    HashSet<Estado> getAllEstados(){ return this.edosAFN; }
+    public void setEdoIni(Estado $estado) {
+        _estadoInicial = $estado;
+        _estadosAFN.add($estado);
+    }
+    public void setAlfabeto(HashSet<Character> $alfabeto) {
+        _alfabeto = $alfabeto;
+    }
+
+    public Estado getEdoIni() { return _estadoInicial; }
+    public HashSet<Estado> getAllEstados() { return _estadosAFN; }
+
+    private Estado _estadoInicial;
+    private HashSet<Estado> _estadosAceptacion;
+    private HashSet<Estado> _estadosAFN;
+    private HashSet<Character> _alfabeto;
 }
