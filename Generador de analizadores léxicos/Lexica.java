@@ -15,114 +15,123 @@
 
 import java.util.HashSet;
 
-class Lexica {
-    String lexema;
-    String total;
-    String prevLexema;
-    Estado currentEstado;
-    Estado prevEstado;
-    Estado prevAceptacion;
-    int currentIndex;
-    int prevIndexAceptacion;
-    int token;
-    int prevToken;
-    AFD automata;
-    
-    //=========================
-    
-    Lexica(){
-        this.total = "";
-        this.currentIndex = 0;
-        this.token = -1;
-        this.currentEstado = null;
-        this.prevEstado = null;
-        this.prevAceptacion = null;
-        this.prevIndexAceptacion = -1;
-        this.prevLexema = "";
-        this.prevToken = -1;
+public class Lexica {
+    // TODO(Garz4): Avoid magic numbers like the following.
+    public Lexica() {
+        _total = "";
+        _currentIndex = 0;
+        _token = -1;
+        _currentEstado = null;
+        _prevEstado = null;
+        _prevAceptacion = null;
+        _prevIndexAceptacion = -1;
+        _prevLexema = "";
+        _prevToken = -1;
     }
-    
-    Lexica(String toTotal, AFD toAutomata){
-        this.total = toTotal;
-        this.currentIndex = 0;
-        this.automata = toAutomata;
-        this.token = -1;
-        this.currentEstado = null;
-        this.prevEstado = toAutomata.getEdoIni();
-        this.prevAceptacion = null;
-        this.prevIndexAceptacion = -1;
-        this.prevLexema = "";
-        this.prevToken = -1;
+
+    // TODO(Garz4): Avoid magic numbers like the following.
+    public Lexica(String $total, AFD $automata) {
+        _total = $total;
+        _currentIndex = 0;
+        _automata = $automata;
+        _token = -1;
+        _currentEstado = null;
+        _prevEstado = $automata.getEdoIni();
+        _prevAceptacion = null;
+        _prevIndexAceptacion = -1;
+        _prevLexema = "";
+        _prevToken = -1;
     }
-    
-    public void compute(){
+
+    public void compute() {
         System.out.print("============ INICIA ANÁLISIS: ============");
-        if(currentIndex == total.length()){
-            token = 0;
-            lexema = "FIN DEL ANÁLISIS";
+        if (_currentIndex == _total.length()) {
+            _token = 0;
+            _lexema = "FIN DEL ANÁLISIS";
             return;
         }
-        
-        lexema = "";
-        
-        prevEstado = automata.getEdoIni();
-        prevAceptacion = null;
 
-        while(currentIndex < total.length()){
-            System.out.print("-------\nCurrent index: "+currentIndex+"\nCurrent char: "+total.charAt(currentIndex)+"\n");
-            currentEstado = validateTransition(total.charAt(currentIndex), prevEstado);
-            
-            if(currentEstado != null){
-                
-                this.token = currentEstado.getToken();
-                lexema += total.charAt(currentIndex);
-                System.out.print("\nCurrent id: "+currentEstado.getId()+"\nCurrent lexema: "+lexema+"\nCurrent token: "+token+"\n");
-                
-                if(currentEstado.getToken() > 0){
-                    prevAceptacion = currentEstado;
-                    prevIndexAceptacion = currentIndex;
-                    prevLexema = lexema;
-                    prevToken = token;
+        _lexema = "";
+        _prevEstado = _automata.getEdoIni();
+        _prevAceptacion = null;
+
+        while (_currentIndex < _total.length()) {
+            System.out.print("-------\nCurrent index: "
+                    + _currentIndex + "\nCurrent char: "
+                    + _total.charAt(_currentIndex) + "\n");
+
+            _currentEstado = validateTransition(
+                    _total.charAt(_currentIndex), _prevEstado);
+
+            if (_currentEstado != null) {
+                _token = _currentEstado.getToken();
+                _lexema += _total.charAt(_currentIndex);
+
+                System.out.print("\nCurrent id: "
+                        + currentEstado.getId() + "\nCurrent lexema: " + lexema
+                        + "\nCurrent token: " + token + "\n");
+
+                if (_currentEstado.getToken() > 0) {
+                    _prevAceptacion = _currentEstado;
+                    _prevIndexAceptacion = _currentIndex;
+                    _prevLexema = _lexema;
+                    _prevToken = _token;
                 }
-                
-                prevEstado = currentEstado;
-                
-                currentIndex++;
-            }
-            else{
-                if(prevAceptacion == null){
-                    token = 0;
-                    lexema = "Error.";
+
+                _prevEstado = _currentEstado;
+                _currentIndex++;
+            } else {
+                if (_prevAceptacion == null) {
+                    _token = 0;
+                    _lexema = "Error.";
+                    return;
+                } else {
+                    _token = _prevToken;
+                    _lexema = _prevLexema;
+                    _currentIndex = _prevIndexAceptacion;
+                    _currentIndex++;
+                    System.out.print("\n->->->-> LEXEMA A RETORNAR: "
+                            + _lexema + " TOKEN: " + _token + " <-<-<-<-<-\n");
                     return;
                 }
-                else{
-                    token = prevToken;
-                    lexema = prevLexema;
-                    currentIndex = prevIndexAceptacion;
-                    currentIndex++;
-                    System.out.print("\n->->->-> LEXEMA A RETORNAR: "+lexema+" TOKEN: "+token+" <-<-<-<-<-\n");
-                    return;
-                }
             }
-            
         }
-        
     }
-    
-    public Estado validateTransition(char toVerify, Estado e){
+
+    public Estado validateTransition(char $simboloValidar, Estado $estado) {
         System.out.print("Estoy");
-        if(e == null) return null;
-        System.out.print("sigo");
-        HashSet<Transicion> trans = new HashSet<>();
-        trans = e.getTransiciones();
-        System.out.print(trans.size());
-        for(Transicion t : trans){
-            if(t.getSimbolo() == toVerify) return t.getEstado();
+
+        if ($estado == null) {
+            return null;
         }
+
+        System.out.print("sigo");
+        HashSet<Transicion> transiciones = $estado.getTransiciones();
+        System.out.print(transiciones.size());
+
+        for (Transicion transicion : transiciones) {
+            if (transicion.getSimbolo() == $simboloValidar) {
+                return transicion.getEstado();
+            }
+        }
+
         System.out.print(" noencontre");
+
         return null;
     }
-    
-    int getToken(){ return this.token; }
-    String getLexema(){ return this.lexema; }
+
+    public int getToken() { return _token; }
+    public String getLexema() { return _lexema; }
+
+    private String _lexema;
+    private String _total;
+    private String _prevLexema;
+    private Estado _currentEstado;
+    private Estado _prevEstado;
+    private Estado _prevAceptacion;
+    private int _currentIndex;
+    private int _prevIndexAceptacion;
+    private int _token;
+    private int _prevToken;
+    private AFD _automata;
 }
