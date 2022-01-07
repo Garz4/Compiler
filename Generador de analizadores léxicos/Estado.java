@@ -1,15 +1,15 @@
 /*
  * MIT License
- * 
+ *
  * Copyright (c) 2021 Uriel Rivas
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * https://github.com/Garz4/compilers/blob/master/LICENSE
  */
 
@@ -19,7 +19,7 @@ public class Estado {
     public Estado() {
         // TODO(Garz4): Avoid magic numbers like the following.
         _token = -1;
-        _id = _generalId++;
+        _id = _idCounter++;
         _aceptacion = false;
         _transiciones = new HashSet<>();
         _transiciones.clear();
@@ -40,7 +40,7 @@ public class Estado {
     public void setToken(int $token) { _token = $token; }
     public void setId(int $id) { _id = $id; }
 
-    private static int _generalId = 1;
+    private static int _idCounter = 1;
     private HashSet<Transicion> _transiciones;
     private int _id;
     private int _token;

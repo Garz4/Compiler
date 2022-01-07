@@ -1,15 +1,15 @@
 /*
  * MIT License
- * 
+ *
  * Copyright (c) 2021 Uriel Rivas
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * https://github.com/Garz4/compilers/blob/master/LICENSE
  */
 
@@ -22,6 +22,7 @@ import java.util.TreeMap;
 
 public class AFN {
     public AFN() {
+        // TODO(Garz4): Avoid magic values.
         _estadoInicial = null;
         _alfabeto = new HashSet<>();
         _alfabeto.clear();
@@ -31,233 +32,223 @@ public class AFN {
         _estadosAFN.clear();
     }
 
-    public AFN(char s, int toToken) {
-        Estado ef;
+    public AFN(char $simbolo, int $token) {
+        Estado estado;
 
         _estadoInicial = new Estado();
-        ef = new Estado();
-        ef.setAceptacion(true);
-        ef.setToken(toToken);
+        estado = new Estado();
+        estado.setAceptacion(true);
+        estado.setToken($token);
         _estadosAceptacion = new HashSet<>();
         _estadosAceptacion.clear();
-        _estadosAceptacion.add(ef);
+        _estadosAceptacion.add(estado);
         _estadosAFN = new HashSet<>();
         _estadosAFN.clear();
         _estadosAFN.add(_estadoInicial);
-        _estadosAFN.add(ef);
+        _estadosAFN.add(estado);
         _alfabeto = new HashSet<>();
         _alfabeto.clear();
-        _alfabeto.add(s);
-        _estadoInicial.addTransicion(s, ef);
+        _alfabeto.add($simbolo);
+        _estadoInicial.addTransicion($simbolo, estado);
     }
 
-    public AFN AFNBasico(char s, int toToken) {
-        Estado ef;
-
-        _estadoInicial = new Estado();
-        ef = new Estado();
-        ef.setAceptacion(true);
-        ef.setToken(toToken);
-        _estadosAceptacion = new HashSet<>();
-        _estadosAceptacion.clear();
-        _estadosAceptacion.add(ef);
-        _estadosAFN = new HashSet<>();
-        _estadosAFN.clear();
-        _estadosAFN.add(_estadoInicial);
-        _estadosAFN.add(ef);
-        _alfabeto = new HashSet<>();
-        _alfabeto.clear();
-        _alfabeto.add(s);
-        _estadoInicial.addTransicion(s, ef);
-
-        return this;
-    }
-
-    public AFN unirAFN(AFN f, int toToken) {
+    public AFN unirAFN(AFN $automata, int $token) {
         Estado nuevoInicio = new Estado();
         Estado nuevoFinal = new Estado();
 
+        // TODO: Stop hardcoding.
         nuevoInicio.addTransicion('&', _estadoInicial);
-        nuevoInicio.addTransicion('&', f._estadoInicial);
+        nuevoInicio.addTransicion('&', $automata.getEstadoInicial());
 
-        for (Estado e : _estadosAceptacion) {
-            e.addTransicion('&', nuevoFinal);
-            e.setAceptacion(false);
+        for (Estado estado : _estadosAceptacion) {
+            estado.addTransicion('&', nuevoFinal);
+            estado.setAceptacion(false);
         }
 
-        for (Estado e : f._estadosAceptacion) {
-            e.addTransicion('&', nuevoFinal);
-            e.setAceptacion(false);
+        for (Estado estado : $automata.getEstadosAceptacion()) {
+            estado.addTransicion('&', nuevoFinal);
+            estado.setAceptacion(false);
         }
 
         nuevoFinal.setAceptacion(true);
-        nuevoFinal.setToken(toToken);
+        nuevoFinal.setToken($token);
 
-        _alfabeto.addAll(f.getAlfabeto());
-        _estadosAFN.addAll(f.getEdosAFN());
+        _alfabeto.addAll($automata.getAlfabeto());
+        _estadosAFN.addAll($automata.getEstadosAFN());
         _estadosAFN.add(nuevoInicio);
         _estadosAFN.add(nuevoFinal);
         _estadosAceptacion.clear();
         _estadosAceptacion.add(nuevoFinal);
         _estadoInicial = nuevoInicio;
-        f = null;
+        $automata = null;
 
         return this;
     }
 
     // Thompson.
-    public AFN concatenar(AFN f2, int toToken) {
-        for (Estado e : _estadosAceptacion) {
-            for (Transicion entry: f2._estadoInicial.getTransiciones()) {
-                e.addTransicion(entry.getSimbolo(), entry.getEstado());
+    public AFN concatenar(AFN $automata, int $token) {
+        for (Estado estado : _estadosAceptacion) {
+            for (Transicion transicion
+                    : $automata.getEstadoInicial().getTransiciones()) {
+                estado.addTransicion(
+                        transicion.getSimbolo(), transicion.getEstado());
             }
         }
 
-        f2._estadosAFN.remove(f2._estadoInicial);
+        // TODO: Does this work?
+        $automata.getEstadosAFN().remove($automata.getEstadoInicial());
 
-        for (Estado e : _estadosAceptacion) {
-            e.setAceptacion(false);
+        for (Estado estado : _estadosAceptacion) {
+            estado.setAceptacion(false);
             //e.setToken(-1); <- TODO?
         }
 
         _estadosAceptacion.clear();
 
-        for (Estado e : f2._estadosAceptacion) {
-            e.setToken(toToken);
-            _estadosAceptacion.add(e);
+        for (Estado estado : $automata.getEstadosAceptacion()) {
+            estado.setToken($token);
+            _estadosAceptacion.add(estado);
         }
 
-        for (char a : f2.getAlfabeto()) {
-            _alfabeto.add(a);
+        for (Character letra : $automata.getAlfabeto()) {
+            _alfabeto.add(letra);
         }
 
-        for (Estado e : f2._estadosAFN) {
-            _estadosAFN.add(e);
+        for (Estado estado : $automata.getEstadosAFN()) {
+            _estadosAFN.add(estado);
         }
 
-        f2 = null;
+        $automata = null;
 
         return this;
     }
 
-    // Cerradura positiva. 
-    public AFN CerrMas(int toToken) {
-        Estado NuevoIni = new Estado();
-        Estado NuevoFin = new Estado();
-        NuevoIni.addTransicion('&', _estadoInicial);
+    // Cerradura positiva.
+    public AFN CerrMas(int $token) {
+        Estado nuevoInicio = new Estado();
+        Estado nuevoFinal = new Estado();
+
+        // TODO: Stop hardcoding.
+        nuevoInicio.addTransicion('&', _estadoInicial);
+
+        for (Estado estado : _estadosAceptacion) {
+            estado.addTransicion('&', nuevoInicio);
+            estado.addTransicion('&', _estadoInicial);
+            estado.setAceptacion(false);
+        }
+
+        nuevoFinal.setAceptacion(true);
+        nuevoFinal.setToken($token);
+        _estadosAceptacion.clear();
+        _estadosAceptacion.add(nuevoFinal);
+        _estadosAFN.add(nuevoInicio);
+        _estadosAFN.add(nuevoFinal);
+        _estadoInicial = nuevoInicio;
+
+        return this;
+    }
+
+    public AFN CerrEstrella(int $token) {
+        Estado nuevoInicio = new Estado();
+        Estado nuevoFinal = new Estado();
+
+        // TODO: Stop hardcoding.
+        nuevoInicio.addTransicion('&', _estadoInicial);
+
+        for (Estado estado : _estadosAceptacion) {
+            estado.addTransicion('&', nuevoFinal);
+            estado.addTransicion('&', _estadoInicial);
+            estado.setAceptacion(false);
+        }
+
+        nuevoFinal.setAceptacion(true);
+        nuevoFinal.setToken($token);
+        _estadosAceptacion.clear();
+        _estadosAceptacion.add(nuevoFinal);
+        _estadosAFN.add(nuevoInicio);
+        _estadosAFN.add(nuevoFinal);
+        _estadoInicial = nuevoInicio;
+        _estadoInicial.addTransicion('&', nuevoFinal);
+
+        return this;
+    }
+
+    public AFN CerrOpcional(int $token) {
+        Estado nuevoInicio = new Estado();
+        Estado nuevoFinal = new Estado();
+
+        // TODO: Stop hardcoding.
+        nuevoInicio.addTransicion('&', _estadoInicial);
 
         for (Estado e : _estadosAceptacion) {
-            e.addTransicion('&', NuevoFin);
-            e.addTransicion('&', _estadoInicial);
+            e.addTransicion('&', nuevoFinal);
             e.setAceptacion(false);
         }
 
-        NuevoFin.setAceptacion(true);
-        NuevoFin.setToken(toToken);
+        nuevoFinal.setAceptacion(true);
+        nuevoFinal.setToken($token);
         _estadosAceptacion.clear();
-        _estadosAceptacion.add(NuevoFin);
-        _estadosAFN.add(NuevoIni);
-        _estadosAFN.add(NuevoFin);
-        _estadoInicial = NuevoIni;
+        _estadosAceptacion.add(nuevoFinal);
+        _estadosAFN.add(nuevoInicio);
+        _estadosAFN.add(nuevoFinal);
+        _estadoInicial = nuevoInicio;
+        _estadoInicial.addTransicion('&', nuevoFinal);
 
         return this;
     }
 
-    public AFN CerrEstrella(int toToken) {
-        Estado NuevoIni = new Estado();
-        Estado NuevoFin = new Estado();
-        NuevoIni.addTransicion('&', _estadoInicial);
+    public HashSet<Estado> Cerradura_e(Estado $estado) {
+        HashSet<Estado> hashSetEstados = new HashSet<>();
+        Stack<Estado> pilaEstados = new Stack<>();
+        Estado estado;
 
-        for (Estado e : _estadosAceptacion) {
-            e.addTransicion('&', NuevoFin);
-            e.addTransicion('&', _estadoInicial);
-            e.setAceptacion(false);
-        }
+        hashSetEstados.clear();
+        pilaEstados.clear();
+        pilaEstados.push($estado);
 
-        NuevoFin.setAceptacion(true);
-        NuevoFin.setToken(toToken);
-        _estadosAceptacion.clear();
-        _estadosAceptacion.add(NuevoFin);
-        _estadosAFN.add(NuevoIni);
-        _estadosAFN.add(NuevoFin);
-        _estadoInicial = NuevoIni;
-        _estadoInicial.addTransicion('&', NuevoFin);
+        while (!pilaEstados.empty()) {
+            estado = pilaEstados.pop();
 
-        return this;
-    }
-
-    public AFN CerrOpcional(int toToken) {
-        Estado NuevoIni = new Estado();
-        Estado NuevoFin = new Estado();
-        NuevoIni.addTransicion('&', _estadoInicial);
-
-        for (Estado e : _estadosAceptacion) {
-            e.addTransicion('&', NuevoFin);
-            e.setAceptacion(false);
-        }
-        
-        NuevoFin.setAceptacion(true);
-        NuevoFin.setToken(toToken);
-        _estadosAceptacion.clear();
-        _estadosAceptacion.add(NuevoFin);
-        _estadosAFN.add(NuevoIni);
-        _estadosAFN.add(NuevoFin);
-        _estadoInicial = NuevoIni;
-        _estadoInicial.addTransicion('&', NuevoFin);
-
-        return this;
-    }
-
-    public HashSet<Estado> Cerradura_e(Estado e) {
-        HashSet<Estado> R = new HashSet<>();
-        Stack<Estado> P = new Stack<>();
-        Estado e2;
-        R.clear();
-        P.clear();
-        P.push(e);
-
-        while (!P.empty()) {
-            e2 = P.pop();
-
-            if (R.contains(e2)) {
+            if (hashSetEstados.contains(estado)) {
                 continue;
             }
 
-            R.add(e2);
+            hashSetEstados.add(estado);
 
-            for (Transicion entry : e2.getTransiciones()) {
-                if (entry.getSimbolo() == '&') {
-                    if (!R.contains(entry.getEstado())) {
-                        P.push(entry.getEstado());
+            for (Transicion transicion : estado.getTransiciones()) {
+                // TODO: Stop hardcoding.
+                if (transicion.getSimbolo() == '&') {
+                    if (!hashSetEstados.contains(transicion.getEstado())) {
+                        pilaEstados.push(transicion.getEstado());
                     }
                 }
             }
         }
 
-        return R;
+        return hashSetEstados;
     }
 
-    public HashSet<Estado> Cerradura_e(HashSet<Estado> c) {
-        HashSet<Estado> R = new HashSet<>();
-        R.clear();
+    public HashSet<Estado> Cerradura_e(HashSet<Estado> $hashSetEstados) {
+        HashSet<Estado> hashSetEstados = new HashSet<>();
+        hashSetEstados.clear();
 
-        for (Estado e : c) {
-            R.addAll(Cerradura_e(e));
+        for (Estado estado : $hashSetEstados) {
+            hashSetEstados.addAll(Cerradura_e(estado));
         }
 
-        return R;
+        return hashSetEstados;
     }
 
-    public HashSet<Estado> mover(HashSet<Estado> toHash, char toChar) {
+    public HashSet<Estado> mover(HashSet<Estado> $estados, char $simbolo) {
         HashSet<Estado> response = new HashSet<>();
-        HashSet<Transicion> currTran = new HashSet<>();
+        HashSet<Transicion> transiciones = new HashSet<>();
 
-        for (Estado e : toHash) {
-            currTran = e.getTransiciones();
+        for (Estado estado : $estados) {
+            transiciones = estado.getTransiciones();
 
-            for (Transicion t : currTran) {
-                if (t.getSimbolo() == toChar) {
-                    response.add(t.getEstado());
+            for (Transicion transicion : transiciones) {
+                if (transicion.getSimbolo() == $simbolo) {
+                    response.add(transicion.getEstado());
                 }
             }
         }
@@ -265,26 +256,26 @@ public class AFN {
         return response;
     }
 
-    public HashSet<Estado> irA(HashSet<Estado> toHash, char toChar) {
-        return Cerradura_e(mover(toHash, toChar));
+    public HashSet<Estado> irA(HashSet<Estado> $estados, char $simbolo) {
+        return Cerradura_e(mover($estados, $simbolo));
     }
 
     public int yaContiene(
-            NavigableMap<Integer, HashSet> totales, HashSet<Estado> toAnalyze) {
-        for (Entry<Integer, HashSet> entry : totales.entrySet()) {
-            if (toAnalyze.equals(entry.getValue())) {
-                return entry.getKey();
+            NavigableMap<Integer, HashSet> $totales, HashSet<Estado> $compara) {
+        for (Entry<Integer, HashSet> total : $totales.entrySet()) {
+            if ($compara.equals(total.getValue())) {
+                return total.getKey();
             }
         }
 
         return -1;
     }
 
-    public int esAceptacion(HashSet<Estado> toVerify){
-        for (Estado e : toVerify) {
-            for (Estado eA : _estadosAceptacion) {
-                if (e.getId() == eA.getId()) {
-                    return eA.getToken();
+    public int esAceptacion(HashSet<Estado> $estados) {
+        for (Estado estado : $estados) {
+            for (Estado estadoAceptacion : _estadosAceptacion) {
+                if (estado.getId() == estadoAceptacion.getId()) {
+                    return estadoAceptacion.getToken();
                 }
             }
         }
@@ -292,11 +283,13 @@ public class AFN {
         return -1;
     }
 
-    public int contieneTokenValido(HashSet<Estado> toVerify) {
-        for (Estado e : toVerify) {
-            for (Estado eI : _estadosAFN) {
-                if (e.getId() == eI.getId() && eI.getToken() != -1) {
-                    return eI.getToken();
+    public int contieneTokenValido(HashSet<Estado> $estados) {
+        for (Estado estado : $estados) {
+            for (Estado estadoAFN : _estadosAFN) {
+                // TODO: Stop hardcoding.
+                if (estado.getId() == estadoAFN.getId()
+                        && estadoAFN.getToken() != -1) {
+                    return estadoAFN.getToken();
                 }
             }
         }
@@ -315,14 +308,14 @@ public class AFN {
         NavigableMap<Integer, HashSet> totales = new TreeMap<>();
         HashSet<Estado> current = Cerradura_e(_estadoInicial);
         HashSet<Estado> analyzing = new HashSet<>();
-        
+
         A.push(current);
         totales.put(contadorId, current);
         estadosAFD.add(new Estado());
         estadosAFD.get(0).setId(contadorId);
         response.setEdoIni(estadosAFD.get(0));
         contadorId++;
-        
+
         while (!A.empty()) {
             current = A.pop();
 
@@ -335,7 +328,7 @@ public class AFN {
 
                     if (newId == -1) {
                         estadosAFD.add(new Estado());
-                        
+
                         for (Estado currE : estadosAFD) {
                             if (currE.getId() == currentId) {
                                 currE.addTransicion(
@@ -344,8 +337,8 @@ public class AFN {
                                 break;
                             }
                         }
-                        
-                        estadosAFD.get(estadosAFD.size()-1).setId(contadorId);
+
+                        estadosAFD.get(estadosAFD.size() - 1).setId(contadorId);
                         int toAceptacion = esAceptacion(analyzing);
 
                         if (toAceptacion != -1) {
@@ -370,11 +363,11 @@ public class AFN {
                         totales.put(contadorId, analyzing);
                         contadorId++;
                     } else {
-                        for (Estado currE : estadosAFD) {
-                            if (currE.getId() == currentId) {
+                        for (Estado estado : estadosAFD) {
+                            if (estado.getId() == currentId) {
                                 for (Estado currrr : estadosAFD) {
                                     if (currrr.getId() == newId) {
-                                        currE.addTransicion(a, currrr);
+                                        estado.addTransicion(a, currrr);
                                         break;
                                     }
                                 }
@@ -386,12 +379,12 @@ public class AFN {
             }
         }
 
-        for (Estado e : estadosAFD) {
-            if (e != response.getEdoIni()) {
-                response.addEstado(e);
+        for (Estado estado : estadosAFD) {
+            if (estado != response.getEdoIni()) {
+                response.addEstado(estado);
 
-                if (e.aceptacion) {
-                    response.addEdoAceptacion(e);
+                if (estado.getAceptacion()) {
+                    response.addEdoAceptacion(estado);
                 }
             }
         }
@@ -423,8 +416,12 @@ public class AFN {
         return response;
     }
 
+    private Estado getEstadoInicial() { return _estadoInicial; }
+    private HashSet<Estado> getEstadosAFN() { return _estadosAFN; }
+    private HashSet<Estado> getEstadosAceptacion() {
+        return _estadosAceptacion;
+    }
     private HashSet<Character> getAlfabeto() { return _alfabeto; }
-    private HashSet<Estado> getEdosAFN() { return _estadosAFN; }
 
     private Estado _estadoInicial;
     private HashSet<Estado> _estadosAceptacion;
